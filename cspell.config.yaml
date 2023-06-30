@@ -1,0 +1,22 @@
+version: "0.2"
+ignorePaths:
+  - .gitignore
+  - requirements.txt
+  - builds*
+allowCompoundWords: true
+dictionaries:
+  - python
+words:
+  - isort
+  - mypy
+  - pydantic
+  - pytest
+  - vybornyy
+ignoreWords: []
+import: []
+enableFiletypes:
+  - dockercompose
+  - ini
+  - makefile
+  - markdown
+  - toml

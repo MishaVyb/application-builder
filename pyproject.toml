@@ -1,0 +1,23 @@
+
+[tool.pytest.ini_options]
+testpaths = [
+  'tests',
+]
+markers = [
+  'e2e',  # end-to-end test cases which depends on third-party services or API (by default turned off)
+  'redis'
+]
+addopts = [
+  '-m',
+  'not e2e and not redis and not alembic'
+]
+pythonpath = '.'
+log_level='DEBUG'
+
+
+[tool.black]
+skip-string-normalization = 1       # disable converting single
+
+[tool.autoflake]
+exclude = ['venv', 'alembic', '*tmp*']
+
