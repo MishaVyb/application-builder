@@ -5,11 +5,12 @@ from pydantic import BaseSettings, DirectoryPath, FilePath
 
 
 class Settings(BaseSettings):
-    DEBUG: bool = False
+    DEBUG: bool = True
+    LOG_LEVEL: int | str = logging.INFO
+
     BASEDIR: DirectoryPath = Path(__file__).resolve().parent.parent.parent
     BUILDS_FILE_PATH: FilePath = BASEDIR / 'builds' / 'builds.yaml'
     TASKS_FILE_PATH: FilePath = BASEDIR / 'builds' / 'tasks.yaml'
-    LOG_LEVEL: int | str = logging.INFO
 
     class Config:
         allow_mutations = False
