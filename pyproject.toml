@@ -16,6 +16,7 @@ log_level='DEBUG'
 
 
 [tool.black]
+line-length = 120
 skip-string-normalization = 1       # disable converting single
 
 [tool.autoflake]
