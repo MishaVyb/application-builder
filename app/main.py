@@ -12,6 +12,7 @@ from app.schemas.tasks import TaskEntity
 
 TasksStore: TypeAlias = dict[str, TaskEntity]
 BuildsStore: TypeAlias = dict[str, BuildSchema]
+TaskName: TypeAlias = str
 
 # TODO
 # - try speed without pydantic

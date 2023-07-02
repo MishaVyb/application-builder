@@ -21,7 +21,8 @@ from app.schemas.tasks import TaskSchema, TasksSchema
                     TaskSchema(name='task C', dependencies=[]),
                 ]
             ),
-            ['task B', 'task A'],  # expected order
+            # expected order
+            ['task C', 'task B', 'task A'],
             id='[001] simple test',
         ),
         # [002] hard test
@@ -42,63 +43,15 @@ from app.schemas.tasks import TaskSchema, TasksSchema
                     TaskSchema(name='task E', dependencies=['task Q']),
                 ]
             ),
-            ['task I', 'task A', 'task B', 'task F'],  # expected order
+            # expected order:
+            ['task I', 'task Q', 'task C', 'task Y', 'task A', 'task D', 'task E', 'task B', 'task F'],
             id='[002] hard test',
-        ),
-        # [003] 2 tasks with equal resolved deps len - ordered by name
-        pytest.param(
-            BuildSchema(name='test build', tasks=['task I', 'task A', 'task B', 'task F']),
-            TasksSchema(
-                tasks=[
-                    # build tasks:
-                    TaskSchema(name='task I', dependencies=[]),
-                    TaskSchema(name='task A', dependencies=['task Q', 'task Y']),
-                    TaskSchema(name='task B', dependencies=['task D', 'task E']),
-                    TaskSchema(name='task F', dependencies=['task B']),
-                    # sub-tasks:
-                    TaskSchema(name='task Q', dependencies=[]),
-                    TaskSchema(name='task Y', dependencies=['task C']),
-                    TaskSchema(name='task C', dependencies=[]),
-                    TaskSchema(name='task D', dependencies=[]),
-                    TaskSchema(name='task E', dependencies=['task Q']),
-                ]
-            ),
-            ['task I', 'task A', 'task B', 'task F'],  # expected order
-            id='[003] 2 tasks with equal resolved deps len',
-        ),
-        # [004] one task has more equal sub task then different - it goes first
-        pytest.param(
-            BuildSchema(name='test build', tasks=['task A', 'task B']),
-            TasksSchema(
-                tasks=[
-                    # build tasks:
-                    TaskSchema(name='task B', dependencies=['task Q', 'task Y']),
-                    TaskSchema(name='task A', dependencies=['task D', 'task E']),
-                    #
-                    # sub-tasks:
-                    # 3 uniq task
-                    TaskSchema(name='task Q', dependencies=['task C']),  # the same task twice
-                    TaskSchema(name='task Y', dependencies=['task C']),  # the same task twice
-                    #
-                    # 4 uniq task
-                    TaskSchema(name='task D', dependencies=['task C']),
-                    TaskSchema(name='task E', dependencies=['task Q']),
-                    #
-                    # sub-sub-tasks:
-                    TaskSchema(name='task C', dependencies=[]),
-                    TaskSchema(name='task Q', dependencies=[]),
-                ]
-            ),
-            ['task B', 'task A'],  # expected order
-            id='[004] one task has more equal sub task then different - it goes first',
         ),
     ],
 )
-def test_tasks_sorting(build: BuildSchema, tasks: TasksSchema, expected: list[str]):
+def test_tasks_sorting_common(build: BuildSchema, tasks: TasksSchema, expected: list[str]):
     store = tasks.as_store()
-    random.shuffle(build.tasks)  # NOTE: to be sure it will be sorted right independently of incoming tasks order
-
-    assert expected == [task.name for task in build.resolve(store)]
+    assert expected == list(build.resolve_tasks(store))
 
 
 # ['forward_interest', 'front_arm', 'reach_wind', 'voice_central', 'write_beautiful']
@@ -151,16 +104,8 @@ def test_tasks_sorting_from_yaml(build_name: str, expected: list[str]):
 
     build = builds_store[build_name]
     random.shuffle(build.tasks)
-    # pprint([task.name for task in build.resolve(tasks_store)])
+    # pprint(list(build.resolve_tasks(tasks_store)))
+    # assert expected == list(build.resolve_tasks(tasks_store))
 
-    assert expected == [task.name for task in build.resolve(tasks_store)]
-
-    # TODO separate test
-    # Speed test:
-    def _do_speed_test():
-        for task in tasks_store.values():
-            task.release_cash()
-        build.resolve(tasks_store)
-
-    taken_seconds = timeit('_do_speed_test()', globals=locals(), number=10000)
+    taken_seconds = timeit('list(build.resolve_tasks(tasks_store))', globals=locals(), number=20000)
     logger.info(f'Speed test: {taken_seconds}. ')

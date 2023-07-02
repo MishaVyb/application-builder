@@ -8,6 +8,7 @@ from app.schemas.tasks import TaskEntity, TaskSchema
 
 if TYPE_CHECKING:
     from app.main import TasksStore
+    from app.main import TaskName
 
 
 class BuildSchema(BaseSchema):
@@ -16,17 +17,18 @@ class BuildSchema(BaseSchema):
     tasks: list[str] = []
     """List of dependent task names. """
 
+    # UNUSED
     def tasks_generator(self, store: TasksStore) -> Generator[TaskEntity, None, None]:
         """Tasks as `TaskEntity` instances generator factory."""
         return (store[task_name] for task_name in self.tasks)
 
-    @timer(name='Resolve build')
-    def resolve(self, store: TasksStore):
-        """Resolve tasks dependencies. Return sorted list."""
-        for task in self.tasks_generator(store):
-            task.resolve_dependence(store)
+    @timer(name='Build - resolve')
+    def resolve_tasks(self, store: TasksStore):
+        """Generator factory...TODO tasks in order to setup depending on each task dependencies."""
+        resolved_tasks = set()
 
-        return sorted(self.tasks_generator(store))
+        for task in self.tasks_generator(store):
+            yield from task.resolve_dependence(store, resolved_tasks)
 
 
 class BuildsSchema(BaseSchema):
