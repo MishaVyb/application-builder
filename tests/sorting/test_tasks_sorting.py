@@ -1,10 +1,9 @@
-# # Example
-# build = BuildSchema(name='build A', tasks=['task A', 'task B'])
 import random
+from timeit import timeit
 
 import pytest
 
-from app.core import settings
+from app.core import logger, settings
 from app.schemas.builds import BuildSchema, BuildsSchema
 from app.schemas.tasks import TaskSchema, TasksSchema
 
@@ -96,7 +95,7 @@ from app.schemas.tasks import TaskSchema, TasksSchema
     ],
 )
 def test_tasks_sorting(build: BuildSchema, tasks: TasksSchema, expected: list[str]):
-    store = tasks.as_mapping()
+    store = tasks.as_store()
     random.shuffle(build.tasks)  # NOTE: to be sure it will be sorted right independently of incoming tasks order
 
     assert expected == [task.name for task in build.resolve(store)]
@@ -147,8 +146,8 @@ def test_tasks_sorting(build: BuildSchema, tasks: TasksSchema, expected: list[st
 def test_tasks_sorting_from_yaml(build_name: str, expected: list[str]):
     builds_schema = BuildsSchema.parse_yaml(settings.BUILDS_FILE_PATH)
     tasks_schema = TasksSchema.parse_yaml(settings.TASKS_FILE_PATH)
-    builds_store = builds_schema.as_mapping()
-    tasks_store = tasks_schema.as_mapping()
+    builds_store = builds_schema.as_store()
+    tasks_store = tasks_schema.as_store()
 
     build = builds_store[build_name]
     random.shuffle(build.tasks)
@@ -156,10 +155,12 @@ def test_tasks_sorting_from_yaml(build_name: str, expected: list[str]):
 
     assert expected == [task.name for task in build.resolve(tasks_store)]
 
-    # def _do():
-    #     build.resolve(tasks_store)
-    #     for task in tasks_store.values():
-    #         task.release_cash()
+    # TODO separate test
+    # Speed test:
+    def _do_speed_test():
+        for task in tasks_store.values():
+            task.release_cash()
+        build.resolve(tasks_store)
 
-    # taken_seconds = timeit('_do()', globals=locals(), number=1500)
-    # print(taken_seconds)
+    taken_seconds = timeit('_do_speed_test()', globals=locals(), number=10000)
+    logger.info(f'Speed test: {taken_seconds}. ')

@@ -10,26 +10,32 @@ if TYPE_CHECKING:
     from app.main import TasksStore
 
 
-@total_ordering
 class TaskSchema(BaseSchema):
     name: str
     """Unique task name. """
     dependencies: list[str] = []
     """List of dependent task names. """
 
-    resolved_dependencies: set[str] | None = None
-    """Internal cash field. Includes depended task names and all sub-depended task names. Calculated once. """
 
-    # def __hash__(self) -> int:
-    #     # NOTE: All tasks has unique names, so we may use `name` as hash value
-    #     return hash(self.name)
+@total_ordering
+class TaskEntity:
+    """
+    As `TaskSchema`, but it's not Pydantic shemas.
+    So there are no any cheking on attribute assignment which improves ordering speed in 2-3 times.
+    """
 
-    def resolve_dependence(self, tasks: TasksStore):
-        if self.resolved_dependencies is not None:
+    def __init__(self, name: str, dependencies: list[str]) -> None:
+        self.name = name
+        self.dependencies = dependencies
+        self._resolved_dependencies: set[str] | None = None
+        """Internal cash field. Includes depended task names and all sub-depended task names. Calculated once. """
+
+    def resolve_dependence(self, store: TasksStore):
+        if self._resolved_dependencies is not None:
             logger.debug(f'Already resolved  : {self}')
             return
 
-        self.resolved_dependencies = set()
+        self._resolved_dependencies = set()
         if not self.dependencies:
             logger.debug(f'Nothing to resolve: {self}')
             return
@@ -37,45 +43,47 @@ class TaskSchema(BaseSchema):
         logger.debug(f'Start resolving: {self}. Deps: {self.dependencies}. ')
         for task_name in self.dependencies:
             # set dependence name
-            self.resolved_dependencies.add(task_name)
+            self._resolved_dependencies.add(task_name)
 
             # set all sub-dependencies task names
-            task = tasks[task_name]
-            task.resolve_dependence(tasks)
-            self.resolved_dependencies.update(task.resolved_dependencies)
+            task = store[task_name]
+            task.resolve_dependence(store)
+            self._resolved_dependencies.update(task._resolved_dependencies)
 
         logger.debug(
             f'End resolving: {self}. Deps: {self.dependencies}. '
-            f'All: {self.resolved_dependencies} ({len(self.resolved_dependencies)}) '
+            f'All: {self._resolved_dependencies} ({len(self._resolved_dependencies)}) '
         )
 
     def release_cash(self):
-        self.resolved_dependencies = None
+        self._resolved_dependencies = None
 
     def __lt__(self, other: object):
-        if isinstance(other, TaskSchema):
-            if self.resolved_dependencies is None or other.resolved_dependencies is None:
-                raise ValueError('Unresolved dependencies. ')
+        if not isinstance(other, TaskEntity):
+            return NotImplemented
 
-            return (len(self.resolved_dependencies), self.name) < (len(other.resolved_dependencies), other.name)
+        if self._resolved_dependencies is None or other._resolved_dependencies is None:
+            raise NotImplemented  # Unresolved dependencies.
 
-        return NotImplemented
+        # TODO why name?
+        return (len(self._resolved_dependencies), self.name) < (len(other._resolved_dependencies), other.name)
 
     def __eq__(self, other):
-        if isinstance(other, TaskSchema):
-            return self.name == other.name
-        return NotImplemented
+        if not isinstance(other, TaskEntity):
+            return NotImplemented
+        return self.name == other.name
 
     def __str__(self):
         return self.name
+
+    # def __hash__(self) -> int:
+    #     # NOTE: All tasks has unique names, so we may use `name` as hash value
+    #     return hash(self.name)
 
 
 class TasksSchema(BaseSchema):
     tasks: list[TaskSchema]
 
-    def as_mapping(self):
-        return {task.name: task for task in self.tasks}
-
-    # __iter__
-    # __get__
-    # __bool__
+    def as_store(self):
+        """As strore."""
+        return {task.name: TaskEntity(task.name, task.dependencies) for task in self.tasks}

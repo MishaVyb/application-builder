@@ -11,6 +11,7 @@ words:
   - mypy
   - pydantic
   - pytest
+  - uvicorn
   - vybornyy
 ignoreWords: []
 import: []
