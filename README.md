@@ -27,7 +27,7 @@ Or build image locally and run.
 
 - checkout
 ```sh
-git@github.com:MishaVyb/application-builder.git
+git clone git@github.com:MishaVyb/application-builder.git
 cd application-builder
 ```
 
