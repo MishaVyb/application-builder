@@ -4,9 +4,9 @@ from timeit import timeit
 import pytest
 
 from app.core import logger, settings
-from app.main import TasksStore
 from app.schemas.builds import BuildSchema, BuildsSchema
 from app.schemas.tasks import TaskSchema, TasksSchema
+from app.store import TasksStore
 
 
 @pytest.mark.parametrize(
@@ -51,7 +51,7 @@ from app.schemas.tasks import TaskSchema, TasksSchema
     ],
 )
 def test_tasks_sorting_common(build: BuildSchema, tasks: TasksSchema, expected: list[str]):
-    store = tasks.as_store()
+    store = TasksStore.from_schema(tasks)
     assert expected == list(build.resolve_tasks(store))
 
 

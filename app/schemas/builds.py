@@ -7,7 +7,7 @@ from app.core.utils import timer
 from app.schemas.base import BaseSchema, TaskName
 
 if TYPE_CHECKING:
-    from app.main import TasksStore
+    from app.store import TasksStore
 
 
 class BuildSchema(BaseSchema):
@@ -43,5 +43,5 @@ class BuildSchema(BaseSchema):
 class BuildsSchema(BaseSchema):
     builds: list[BuildSchema]
 
-    def as_store(self):
-        return {build.name: build for build in self.builds}
+    def __iter__(self):
+        return iter(self.builds)

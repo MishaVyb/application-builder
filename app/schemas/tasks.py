@@ -1,11 +1,9 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
-
 from app.schemas.base import BaseSchema, TaskName
 
 if TYPE_CHECKING:
-    from app.main import TasksStore
+    from app.store import TasksStore
 
 
 class TaskSchema(BaseSchema):
@@ -49,5 +47,5 @@ class TaskSchema(BaseSchema):
 class TasksSchema(BaseSchema):
     tasks: list[TaskSchema]
 
-    def as_store(self):
-        return {task.name: task for task in self.tasks}
+    def __iter__(self):
+        return iter(self.tasks)

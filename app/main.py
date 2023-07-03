@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import TypeAlias
 
 import uvicorn
 from fastapi import FastAPI
@@ -11,11 +10,10 @@ from app.core import logger, settings
 from app.core.utils import timer
 from app.schemas.builds import BuildSchema, BuildsSchema
 from app.schemas.tasks import TaskSchema, TasksSchema
+from app.store.store import BuildsStore, TasksStore
 
 # from app.schemas.tasks import TaskEntity
 
-TasksStore: TypeAlias = dict[str, TaskSchema]
-BuildsStore: TypeAlias = dict[str, BuildSchema]
 
 # TODO
 # - try speed without pydantic
@@ -36,8 +34,8 @@ async def initialize_store(app: FastAPI):
     with timer('App: init', logger.info):
         builds_schema = BuildsSchema.parse_yaml(settings.BUILDS_FILE_PATH)
         tasks_schema = TasksSchema.parse_yaml(settings.TASKS_FILE_PATH)
-        app.extra['builds_store'] = builds_schema.as_store()
-        app.extra['tasks_store'] = tasks_schema.as_store()
+        app.extra['builds_store'] = BuildsStore.from_schema(builds_schema)
+        app.extra['tasks_store'] = TasksStore.from_schema(tasks_schema)
 
     yield
 
