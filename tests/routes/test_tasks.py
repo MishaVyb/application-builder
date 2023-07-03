@@ -15,7 +15,7 @@ async def test_get_tasks_200(client: AsyncClient, build_name: str):
     response = await client.post('/api/v1/get_tasks', content=json.dumps({'build': build_name}))
 
     assert response.status_code == status.HTTP_200_OK
-    logger.info(response.json())
+    logger.info(f'Result: {response.json()}. ')
 
 
 async def test_get_tasks_404_build(client: AsyncClient):
