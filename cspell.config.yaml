@@ -7,10 +7,14 @@ allowCompoundWords: true
 dictionaries:
   - python
 words:
+  - anyio
+  - asgi
+  - httpx
   - isort
   - mypy
   - pydantic
   - pytest
+  - starlette
   - uvicorn
   - vybornyy
 ignoreWords: []

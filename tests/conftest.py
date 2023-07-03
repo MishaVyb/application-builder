@@ -9,9 +9,6 @@ def new_line_function():
     print()
 
 
-# XXX
-# # NOTE
-# # Custom pytest invocation for `profile`
-# #
-# if __name__ == '__main__':
-#     sys.exit(pytest.main(['-xvs']))
+@pytest.fixture(params=['forward_interest', 'front_arm', 'reach_wind', 'voice_central', 'write_beautiful'])
+def build_name(request) -> str:
+    return request.param

@@ -1,9 +1,10 @@
-import random
+import logging
 from timeit import timeit
 
 import pytest
 
 from app.core import logger, settings
+from app.main import TasksStore
 from app.schemas.builds import BuildSchema, BuildsSchema
 from app.schemas.tasks import TaskSchema, TasksSchema
 
@@ -54,58 +55,27 @@ def test_tasks_sorting_common(build: BuildSchema, tasks: TasksSchema, expected: 
     assert expected == list(build.resolve_tasks(store))
 
 
-# ['forward_interest', 'front_arm', 'reach_wind', 'voice_central', 'write_beautiful']
-@pytest.mark.parametrize(
-    ['build_name', 'expected'],
-    [
-        pytest.param(
-            # build name:
-            'forward_interest',
-            [
-                # expected order:
-                'build_teal_leprechauns',
-                'write_fuchsia_golems',
-                'coloring_navy_golems',
-                'enable_olive_humans',
-                'enable_lime_leprechauns',
-                'enable_lime_leprechauns',
-                'enable_silver_humans',
-                'coloring_aqua_centaurs',
-                'write_blue_ogres',
-            ],
-            id='[001] forward_interest',
-        ),
-        pytest.param(
-            # build name:
-            'front_arm',
-            [
-                # expected order:
-                'build_lime_golems',
-                'design_maroon_witches',
-                'read_aqua_orcs',
-                'design_teal_golems',
-                'train_white_leprechauns',
-                'design_yellow_centaurs',
-                'read_gray_golems',
-                'upgrade_gray_humans',
-                'coloring_black_goblins',
-                'map_purple_humans',
-            ],
-            id='[002] front_arm',
-        ),
-        # TODO other builds
-    ],
-)
-def test_tasks_sorting_from_yaml(build_name: str, expected: list[str]):
-    builds_schema = BuildsSchema.parse_yaml(settings.BUILDS_FILE_PATH)
-    tasks_schema = TasksSchema.parse_yaml(settings.TASKS_FILE_PATH)
-    builds_store = builds_schema.as_store()
-    tasks_store = tasks_schema.as_store()
+def test_tasks_sorting_from_yaml_speed(build: BuildSchema, store: TasksStore):
+    def run():
+        list(build.resolve_tasks(store))
 
-    build = builds_store[build_name]
-    random.shuffle(build.tasks)
-    # pprint(list(build.resolve_tasks(tasks_store)))
-    # assert expected == list(build.resolve_tasks(tasks_store))
+    logger.setLevel(logging.WARNING)
+    taken_seconds = timeit('run()', globals=locals(), number=20000)
 
-    taken_seconds = timeit('list(build.resolve_tasks(tasks_store))', globals=locals(), number=20000)
+    logger.setLevel(settings.LOG_LEVEL)
     logger.info(f'Speed test: {taken_seconds}. ')
+
+
+def test_tasks_sorting_from_yaml_logic(build: BuildSchema, store: TasksStore):
+    result = list(build.resolve_tasks(store))
+
+    # Check no duplicates
+    assert len(result) == len(set(result))
+
+    # Check that every build's task appears at result
+    assert set(result).issuperset(build.tasks)
+
+    # Check that for every task all its dependencies appear before task itself
+    for idx, task_name in enumerate(result):
+        task_dependencies = set(store[task_name].get_all_dependencies(store))
+        assert set(result[0:idx]).issuperset(task_dependencies)

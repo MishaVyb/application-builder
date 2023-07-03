@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from pprint import pformat
 
 from pydantic import BaseSettings, DirectoryPath, FilePath
 
@@ -14,6 +15,9 @@ class Settings(BaseSettings):
 
     class Config:
         allow_mutations = False
+
+    def __str__(self):
+        return pformat(self.dict())
 
 
 # App settings:

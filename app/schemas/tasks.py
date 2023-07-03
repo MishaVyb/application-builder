@@ -2,52 +2,52 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.core import logger
-
-from app.schemas.base import BaseSchema
+from app.schemas.base import BaseSchema, TaskName
 
 if TYPE_CHECKING:
     from app.main import TasksStore
-    from app.main import TaskName
 
 
 class TaskSchema(BaseSchema):
-    name: str
+    name: TaskName
     """Unique task name. """
-    dependencies: list[str] = []
+    dependencies: list[TaskName] = []
     """List of dependent task names. """
 
-
-class TaskEntity:
-    """
-    As `TaskSchema`, but it's not Pydantic shemas.
-    So there are no any cheking on attribute assignment which improves ordering speed in 2-3 times.
-    """
-
-    def __init__(self, name: str, dependencies: list[str]) -> None:
-        self.name = name
-        self.dependencies = dependencies
-
     def resolve_dependence(self, store: TasksStore, resolved_tasks: set[TaskName]):
-        # Handle task deps
+        """
+        Task dependencies traversal.
+
+        Generator factory to iterate on task names. Implementation similar as for `Post Order Dearth First Traversal`.
+        Iterate through task dependencies, then yield task itself. Exclude duplicates by shared `resolved_tasks` among
+        all build`s tasks.
+        """
+        # Handle task dependencies
         for task_name in self.dependencies:
             if task_name in resolved_tasks:
                 continue  # task was taken before already - skip
 
-            # retrun all deps
             yield from store[task_name].resolve_dependence(store, resolved_tasks)
 
         # Handle task itself
-        if self.name in resolved_tasks:
-            return  # task was taken before already - skip
-
         resolved_tasks.add(self.name)
         yield self.name
+
+    def get_all_dependencies(self, store: TasksStore):
+        """Helper tool for test assertion."""
+        for task_name in self.dependencies:
+            yield task_name
+            yield from store[task_name].get_all_dependencies(store)
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 class TasksSchema(BaseSchema):
     tasks: list[TaskSchema]
 
     def as_store(self):
-        """As strore."""
-        return {task.name: TaskEntity(task.name, task.dependencies) for task in self.tasks}
+        return {task.name: task for task in self.tasks}
