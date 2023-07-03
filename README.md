@@ -1,7 +1,10 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Workflow](https://github.com/MishaVyb/bart-bot/actions/workflows/tests.yml/badge.svg)](https://github.com/MishaVyb/bart-bot/actions/workflows/gitlab-ci-cd.yml)
+[![Workflow](https://github.com/MishaVyb/application-builder/actions/workflows/gitlab-ci-cd.yml/badge.svg)](https://github.com/MishaVyb/application-builder/actions/workflows/gitlab-ci-cd.yml)
 
 # Application Builder
+
+![Drawing 2023-07-03 11 32 45 excalidraw](https://github.com/MishaVyb/application-builder/assets/103563736/2f2e3fa0-c337-4962-905c-47892e7c5236)
+
 Builder system. Handle task dependencties for each build.
 
 # Setup
