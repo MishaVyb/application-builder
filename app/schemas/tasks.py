@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from app.schemas.base import BaseSchema, TaskName
 
 if TYPE_CHECKING:

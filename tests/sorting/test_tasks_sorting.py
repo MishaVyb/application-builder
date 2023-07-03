@@ -4,7 +4,7 @@ from timeit import timeit
 import pytest
 
 from app.core import logger, settings
-from app.schemas.builds import BuildSchema, BuildsSchema
+from app.schemas.builds import BuildSchema
 from app.schemas.tasks import TaskSchema, TasksSchema
 from app.store import TasksStore
 

@@ -8,21 +8,13 @@ from fastapi import FastAPI
 from app.api.v1.router import router
 from app.core import logger, settings
 from app.core.utils import timer
-from app.schemas.builds import BuildSchema, BuildsSchema
-from app.schemas.tasks import TaskSchema, TasksSchema
+from app.schemas.builds import BuildsSchema
+from app.schemas.tasks import TasksSchema
 from app.store.store import BuildsStore, TasksStore
 
-# from app.schemas.tasks import TaskEntity
-
-
 # TODO
-# - try speed without pydantic
-# - try private field in pydantic
-# - requirements update
 # - cspell!!
-# - remove expensive logs
 # - typeing on return
-# - CI / CD
 
 
 @asynccontextmanager

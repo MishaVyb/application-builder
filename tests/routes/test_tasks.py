@@ -4,7 +4,6 @@ import pytest
 from httpx import AsyncClient
 from starlette import status
 
-from app.api.v1.endpoints.tasks import get_tasks
 from app.main import app
 from app.schemas.tasks import TaskSchema
 
