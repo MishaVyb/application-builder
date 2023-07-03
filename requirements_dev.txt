@@ -1,0 +1,28 @@
+-r requirements.txt
+
+# test tools:
+pytest
+anyio
+
+# test client:
+httpx
+asgi_lifespan
+
+# linters:
+mypy
+flake8
+pep8-naming
+flake8-broken-line
+flake8-return
+flake8-isort
+
+# formaters
+isort
+black
+autoflake==1.7.8
+pre-commit
+
+# types
+types-PyYAML
+
+
