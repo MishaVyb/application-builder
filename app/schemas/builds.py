@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator, Iterator
 
 from app.core.settings import logger
 from app.core.utils import timer
@@ -17,12 +17,12 @@ class BuildSchema(BaseSchema):
     """List of dependent task names. """
 
     @timer('Build: resolve')
-    def resolve_tasks(self, store: TasksStore):
+    def resolve_tasks(self, store: TasksStore) -> Generator[TaskName, None, None]:
         """
         Build`s tasks and their dependenices traversal.
 
         Generator factory function to iterate through task names in order to setup depending on each task dependencies.
-        If task has no dependencies, it's leaves in order of appereance.
+        If task is not sub-dependence of any other task, it leaves in order of appereance.
         """
         logger.info(f'Resolve: {self}')
 
@@ -43,5 +43,5 @@ class BuildSchema(BaseSchema):
 class BuildsSchema(BaseSchema):
     builds: list[BuildSchema]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[BuildSchema]:  # type: ignore
         return iter(self.builds)

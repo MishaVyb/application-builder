@@ -3,6 +3,8 @@ from typing import TypeAlias
 import yaml
 from pydantic import BaseModel, FilePath
 
+TaskName: TypeAlias = str
+
 
 class BaseSchema(BaseModel):
     @classmethod
@@ -10,6 +12,3 @@ class BaseSchema(BaseModel):
         with open(path, 'r') as file:
             content = yaml.safe_load(file)
         return cls.parse_obj(content)
-
-
-TaskName: TypeAlias = str

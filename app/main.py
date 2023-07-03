@@ -12,10 +12,6 @@ from app.schemas.builds import BuildsSchema
 from app.schemas.tasks import TasksSchema
 from app.store.store import BuildsStore, TasksStore
 
-# TODO
-# - cspell!!
-# - typeing on return
-
 
 @asynccontextmanager
 async def initialize_store(app: FastAPI):

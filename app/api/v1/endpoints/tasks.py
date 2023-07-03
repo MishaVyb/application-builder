@@ -1,12 +1,8 @@
-from typing import TYPE_CHECKING
-
 from fastapi import APIRouter, HTTPException, Request
 from starlette import status
 
 from app.schemas.api import GetTasksSchemaIn
-
-if TYPE_CHECKING:
-    from app.store import BuildsStore, TasksStore
+from app.store import BuildsStore, TasksStore
 
 router = APIRouter()
 

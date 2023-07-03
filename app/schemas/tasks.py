@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator, Iterator
 
 from app.schemas.base import BaseSchema, TaskName
 
@@ -14,13 +14,13 @@ class TaskSchema(BaseSchema):
     dependencies: list[TaskName] = []
     """List of dependent task names. """
 
-    def resolve_dependence(self, store: TasksStore, resolved_tasks: set[TaskName]):
+    def resolve_dependence(self, store: TasksStore, resolved_tasks: set[TaskName]) -> Generator[TaskName, None, None]:
         """
         Task dependencies traversal.
 
         Generator factory to iterate on task names. Implementation similar as for `Post Order Dearth First Traversal`.
-        Iterate through task dependencies, then yield task itself. Exclude duplicates by shared `resolved_tasks` among
-        all build`s tasks.
+        - Iterate through task dependencies, then yield task itself.
+        - Exclude duplicates by shared `resolved_tasks` among all build`s tasks.
         """
         # Handle task dependencies
         for task_name in self.dependencies:
@@ -33,7 +33,7 @@ class TaskSchema(BaseSchema):
         resolved_tasks.add(self.name)
         yield self.name
 
-    def get_all_dependencies(self, store: TasksStore):
+    def get_all_dependencies(self, store: TasksStore) -> Generator[TaskName, None, None]:
         """Helper tool for test assertion."""
         for task_name in self.dependencies:
             yield task_name
@@ -49,5 +49,5 @@ class TaskSchema(BaseSchema):
 class TasksSchema(BaseSchema):
     tasks: list[TaskSchema]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[TaskSchema]:  # type: ignore
         return iter(self.tasks)
