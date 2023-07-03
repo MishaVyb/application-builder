@@ -359,9 +359,6 @@ venv*
 # IDE settings
 .vscode*
 
-# local storage
-*.sqlite3
-
 # dev tools
 makefile
 

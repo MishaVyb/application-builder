@@ -1,6 +1,7 @@
 version: "0.2"
 ignorePaths:
   - .gitignore
+  - .dockerignore
   - requirements.txt
   - builds*
 allowCompoundWords: true
@@ -12,6 +13,7 @@ words:
   - Buildx
   - httpx
   - isort
+  - Misha
   - mypy
   - pydantic
   - pytest

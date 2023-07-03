@@ -6,7 +6,7 @@ from pydantic import BaseSettings, DirectoryPath, FilePath
 
 
 class Settings(BaseSettings):
-    DEBUG: bool = True
+    DEBUG: bool = False
     LOG_LEVEL: int | str = logging.INFO
 
     BASEDIR: DirectoryPath = Path(__file__).resolve().parent.parent.parent

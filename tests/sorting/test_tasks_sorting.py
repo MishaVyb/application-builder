@@ -48,6 +48,28 @@ from app.store import TasksStore
             ['task I', 'task Q', 'task C', 'task Y', 'task A', 'task D', 'task E', 'task B', 'task F'],
             id='[002] hard test',
         ),
+        # [003] hard test - another initial order
+        pytest.param(
+            BuildSchema(name='test build', tasks=['task I', 'task A', 'task F', 'task B']),
+            TasksSchema(
+                tasks=[
+                    # build tasks:
+                    TaskSchema(name='task I', dependencies=[]),
+                    TaskSchema(name='task A', dependencies=['task Q', 'task Y']),
+                    TaskSchema(name='task B', dependencies=['task C', 'task D', 'task E']),
+                    TaskSchema(name='task F', dependencies=['task B']),
+                    # sub-tasks:
+                    TaskSchema(name='task Q', dependencies=[]),
+                    TaskSchema(name='task Y', dependencies=['task C']),
+                    TaskSchema(name='task C', dependencies=[]),
+                    TaskSchema(name='task D', dependencies=[]),
+                    TaskSchema(name='task E', dependencies=['task Q']),
+                ]
+            ),
+            # expected order:
+            ['task I', 'task Q', 'task C', 'task Y', 'task A', 'task D', 'task E', 'task B', 'task F'],
+            id='[003] hard test - another initial order',
+        ),
     ],
 )
 def test_tasks_sorting_common(build: BuildSchema, tasks: TasksSchema, expected: list[str]):
