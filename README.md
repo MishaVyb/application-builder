@@ -46,7 +46,7 @@ Or run developer server.
 
 - checkout
 ```sh
-git@github.com:MishaVyb/application-builder.git
+git clone git@github.com:MishaVyb/application-builder.git
 cd application-builder
 ```
 
@@ -72,8 +72,13 @@ curl --request POST \
   --data '{"build": "forward_interest"}'
 ```
 
+- Documentation
+```
+http://localhost:8080/docs
+```
+
 # Tests
-- install development requirements
+- Install develop requirements
 ```sh
 python3.11 -m venv venv
 source venv/bin/activate
